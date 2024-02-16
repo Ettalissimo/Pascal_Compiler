@@ -3,6 +3,7 @@
 #include <string.h>
 #include <ctype.h>
 
+
 #ifdef _WIN32
 #define STRCASECMP STRCASECMP
 #else
