@@ -3,6 +3,12 @@
 #include <string.h>
 #include <ctype.h>
 
+#ifdef _WIN32
+#define STRCASECMP STRCASECMP
+#else
+#define STRCASECMP strcasecmp
+#endif
+
 typedef enum {
     ID_TOKEN, PROGRAM_TOKEN, CONST_TOKEN, VAR_TOKEN,
     BEGIN_TOKEN, END_TOKEN, IF_TOKEN, THEN_TOKEN,
@@ -83,55 +89,55 @@ void lire_mot(){
         Lire_Car();
     }
     mot[indice] = '\0';
-    if (stricmp(mot, "program") == 0){
+    if (STRCASECMP(mot, "program") == 0){
         SYM_COUR.CODE = PROGRAM_TOKEN;
     }
-    else if (stricmp(mot, "const") == 0){
+    else if (STRCASECMP(mot, "const") == 0){
         SYM_COUR.CODE = CONST_TOKEN;
     }
-    else if (stricmp(mot, "var") == 0){
+    else if (STRCASECMP(mot, "var") == 0){
         SYM_COUR.CODE = VAR_TOKEN;
     }
-    else if (stricmp(mot, "begin") == 0){
+    else if (STRCASECMP(mot, "begin") == 0){
         SYM_COUR.CODE = BEGIN_TOKEN;
     }
-    else if (stricmp(mot, "end") == 0){
+    else if (STRCASECMP(mot, "end") == 0){
         SYM_COUR.CODE = END_TOKEN;
     }
-    else if (stricmp(mot, "if") == 0){
+    else if (STRCASECMP(mot, "if") == 0){
         SYM_COUR.CODE = IF_TOKEN;
     }
-    else if (stricmp(mot, "then") == 0){
+    else if (STRCASECMP(mot, "then") == 0){
         SYM_COUR.CODE = THEN_TOKEN;
     }
-    else if (stricmp(mot, "while") == 0){
+    else if (STRCASECMP(mot, "while") == 0){
         SYM_COUR.CODE = WHILE_TOKEN;
     }
-    else if (stricmp(mot, "do") == 0){
+    else if (STRCASECMP(mot, "do") == 0){
         SYM_COUR.CODE = DO_TOKEN;
     }
-    else if (stricmp(mot, "read") == 0){
+    else if (STRCASECMP(mot, "read") == 0){
         SYM_COUR.CODE = READ_TOKEN;
     }
-    else if (stricmp(mot, "write") == 0){
+    else if (STRCASECMP(mot, "write") == 0){
         SYM_COUR.CODE = WRITE_TOKEN;
     }
-    else if (stricmp(mot, "else") == 0){
+    else if (STRCASECMP(mot, "else") == 0){
         SYM_COUR.CODE = ELSE_TOKEN;
     }
-    else if (stricmp(mot, "repeat") == 0){
+    else if (STRCASECMP(mot, "repeat") == 0){
         SYM_COUR.CODE = REPEAT_TOKEN;
     }
-    else if (stricmp(mot, "until") == 0){
+    else if (STRCASECMP(mot, "until") == 0){
         SYM_COUR.CODE = UNTIL_TOKEN;
     }
-    else if (stricmp(mot, "for") == 0){
+    else if (STRCASECMP(mot, "for") == 0){
         SYM_COUR.CODE = FOR_TOKEN;
     }
-    else if (stricmp(mot, "case") == 0){
+    else if (STRCASECMP(mot, "case") == 0){
         SYM_COUR.CODE = CASE_TOKEN;
     }
-    else if (stricmp(mot, "of") == 0){
+    else if (STRCASECMP(mot, "of") == 0){
         SYM_COUR.CODE = OF_TOKEN;
     }
     else{
