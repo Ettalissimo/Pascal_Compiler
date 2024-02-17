@@ -1,6 +1,8 @@
 program test11;
-const int toto=21; titi=13;
-var int x,y;
+const toto=21.2; titi=13;
+var x,y : integer; 
+    b : char; 
+    c : string;
 Begin
     x:=toto;
     read(y);
