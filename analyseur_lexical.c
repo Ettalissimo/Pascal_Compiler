@@ -19,7 +19,9 @@ typedef enum {
     MULT_TOKEN, DIV_TOKEN,VIR_TOKEN, AFF_TOKEN,
     INF_TOKEN, INFEG_TOKEN,SUP_TOKEN, SUPEG_TOKEN,
     DIFF_TOKEN, PO_TOKEN,PF_TOKEN, FIN_TOKEN,
-    NUM_TOKEN, ERREUR_TOKEN, EOF_TOKEN,EG_TOKEN
+    NUM_TOKEN, ERREUR_TOKEN, EOF_TOKEN,EG_TOKEN,
+    //types tokens
+    INT_TOKEN, BOOL_TOKEN, FLOAT_TOKEN, CHAR_TOKEN, STRING_TOKEN
 } CODES_LEX;
 
 FILE * fichier;
@@ -69,6 +71,17 @@ void lire_mot() {
         SYM_COUR.CODE = READ_TOKEN;
     } else if (STRCASECMP(mot, "write") == 0) {
         SYM_COUR.CODE = WRITE_TOKEN;
+        //les types
+    }else if (STRCASECMP(mot, "int") == 0) { 
+        SYM_COUR.CODE = INT_TOKEN;
+    } else if (STRCASECMP(mot, "bool") == 0) { 
+        SYM_COUR.CODE = BOOL_TOKEN;
+    } else if (STRCASECMP(mot, "float") == 0) { 
+        SYM_COUR.CODE = FLOAT_TOKEN;
+    } else if (STRCASECMP(mot, "char") == 0) { 
+        SYM_COUR.CODE = CHAR_TOKEN;
+    } else if (STRCASECMP(mot, "string") == 0) {
+        SYM_COUR.CODE = STRING_TOKEN;
     } else {
         SYM_COUR.CODE = ID_TOKEN;
     }
@@ -229,13 +242,20 @@ const char * stringFormat(CODES_LEX code) {
         case NUM_TOKEN: return "NUM_TOKEN";
         case ERREUR_TOKEN: return "ERREUR_TOKEN";
         case EOF_TOKEN: return "EOF_TOKEN";
+        //type tokens
+        case INT_TOKEN: return "INT_TOKEN"; 
+        case BOOL_TOKEN: return "BOOL_TOKEN";
+        case FLOAT_TOKEN: return "FLOAT_TOKEN";
+        case CHAR_TOKEN: return "CHAR_TOKEN";
+        case STRING_TOKEN: return "STRING_TOKEN";
+        //
         default: return "UNKNOWN_TOKEN";
     }
 }
 
 
 int main() {
-    fichier = fopen("program.txt", "r");
+    fichier = fopen("program_type.txt", "r");
     if (fichier == NULL) {
         perror("Erreur lors de l'ouverture du fichier");
         return 1;
