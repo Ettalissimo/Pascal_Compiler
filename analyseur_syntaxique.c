@@ -21,7 +21,10 @@ typedef enum {
     NUM_TOKEN, ERREUR_TOKEN, FIN_TOKEN, EG_TOKEN,
     REPEAT_TOKEN, UNTIL_TOKEN, FOR_TOKEN, ELSE_TOKEN,
     CASE_TOKEN, OF_TOKEN, INTO_TOKEN, DOWNTO_TOKEN,
-    DDOT_TOKEN
+    DDOT_TOKEN,
+    // Added new type tokens
+    INT_TOKEN, BOOL_TOKEN, REAL_TOKEN,
+    CHAR_TOKEN, STRING_TOKEN  
 } CODES_LEX;
 
 
@@ -36,7 +39,10 @@ typedef enum {
     NUM_ERR, ERREUR_ERR, FIN_ERR, EG_ERR,
     CONST_VAR_BEGIN_ERR, VAR_BEGIN_ERR, REPEAT_ERR, UNTIL_ERR,
     FOR_ERR, ELSE_ERR, CASE_ERR, OF_ERR,
-    INTO_ERR, DOWNTO_ERR, DDOT_ERR
+    INTO_ERR, DOWNTO_ERR, DDOT_ERR,
+    //type Errors
+    TYPE_ERR, INT_ERR, BOOL_ERR, REAL_ERR,
+    CHAR_ERR, STRING_ERR  
 } CODES_ERR;
 
 typedef struct{
@@ -141,12 +147,27 @@ void lire_mot(){
     else if (STRCASECMP(mot, "of") == 0){
         SYM_COUR.CODE = OF_TOKEN;
     }
+    else if (STRCASECMP(mot, "integer") == 0){  // Recognize int keyword
+        SYM_COUR.CODE = INT_TOKEN;
+    }
+    else if (STRCASECMP(mot, "boolean") == 0){  // Recognize bool keyword
+        SYM_COUR.CODE = BOOL_TOKEN;
+    }
+    else if (STRCASECMP(mot, "real") == 0){  // Recognize float keyword
+        SYM_COUR.CODE = REAL_TOKEN;
+    }
+    else if (STRCASECMP(mot, "char") == 0){  // Recognize char keyword
+        SYM_COUR.CODE = CHAR_TOKEN;
+    }
+    else if (STRCASECMP(mot, "string") == 0){  // Recognize string keyword
+        SYM_COUR.CODE = STRING_TOKEN;
+    }
     else{
         SYM_COUR.CODE = ID_TOKEN;
     }
     strcpy(SYM_COUR.NOM, mot);
 }
-
+/*
 void lire_nombre(){
     char nombre[11];
     int indice = 0;
@@ -158,6 +179,27 @@ void lire_nombre(){
     }
     nombre[indice] = '\0';
     SYM_COUR.CODE = NUM_TOKEN;
+    strcpy(SYM_COUR.NOM, nombre);
+}
+*/
+void lire_nombre(){
+    char nombre[20];
+    int indice = 0;
+    nombre[indice++] = Car_Cour;
+    Lire_Car();
+    while (isdigit(Car_Cour) || Car_Cour == '.') {
+        nombre[indice++] = Car_Cour;
+        Lire_Car();
+    }
+    nombre[indice] = '\0';
+
+    // Check if the literal contains a period to determine if it's a float or int
+    if (strchr(nombre, '.') != NULL) {
+        SYM_COUR.CODE = REAL_TOKEN;
+    } else {
+        SYM_COUR.CODE = INT_TOKEN;
+    }
+
     strcpy(SYM_COUR.NOM, nombre);
 }
 
@@ -316,20 +358,35 @@ void BLOCK(){
     INSTS();
 }
 
-void CONSTS(){
-    switch (SYM_COUR.CODE){
+void CONSTS() {
+    switch (SYM_COUR.CODE) {
     case CONST_TOKEN:
         Sym_Suiv();
         Test_Symbole(ID_TOKEN, ID_ERR);
         Test_Symbole(EG_TOKEN, EG_ERR);
-        Test_Symbole(NUM_TOKEN, NUM_ERR);
+
+        // Vérifie si le type est un entier ou un nombre à virgule flottante
+        if (SYM_COUR.CODE == INT_TOKEN || SYM_COUR.CODE == REAL_TOKEN) {
+            Sym_Suiv();
+        } else {
+            Erreur(NUM_ERR); // Erreur si le type n'est pas spécifié correctement
+        }
+
         Test_Symbole(PV_TOKEN, PV_ERR);
-        while (SYM_COUR.CODE == ID_TOKEN){
+
+        while (SYM_COUR.CODE == ID_TOKEN) {
             Sym_Suiv();
             Test_Symbole(EG_TOKEN, EG_ERR);
-            Test_Symbole(NUM_TOKEN, NUM_ERR);
+
+            // Vérifie à nouveau le type pour chaque identifiant
+            if (SYM_COUR.CODE == INT_TOKEN || SYM_COUR.CODE == REAL_TOKEN) {
+                Sym_Suiv();
+            } else {
+                Erreur(NUM_ERR); // Erreur si le type n'est pas spécifié correctement
+            }
+
             Test_Symbole(PV_TOKEN, PV_ERR);
-        };
+        }
         break;
     case VAR_TOKEN:
         break;
@@ -341,16 +398,42 @@ void CONSTS(){
     }
 }
 
-void VARS(){
-    switch (SYM_COUR.CODE){
+void VARS() {
+    switch (SYM_COUR.CODE) {
     case VAR_TOKEN:
         Sym_Suiv();
-        Test_Symbole(ID_TOKEN, ID_ERR);
-        while (SYM_COUR.CODE == VIR_TOKEN){
-            Sym_Suiv();
+        do {
+            // Attend un identifiant pour chaque variable
             Test_Symbole(ID_TOKEN, ID_ERR);
-        }
-        Test_Symbole(PV_TOKEN, PV_ERR);
+
+            // Vérifie s'il y a une virgule pour déclarer une autre variable du même type
+            while (SYM_COUR.CODE == VIR_TOKEN) {
+                Sym_Suiv();
+                Test_Symbole(ID_TOKEN, ID_ERR);
+            }
+
+            // Attend un deux-points pour la déclaration de type
+            Test_Symbole(DDOT_TOKEN, DDOT_ERR);
+
+            // Gère le type de chaque variable
+            switch (SYM_COUR.CODE) {
+            case INT_TOKEN:
+            case BOOL_TOKEN:
+            case REAL_TOKEN:
+            case CHAR_TOKEN:                
+            case STRING_TOKEN:
+                    Sym_Suiv();
+                    break;
+                default:
+                    Erreur(ERREUR_ERR);  // Erreur si le type n'est pas valide
+                    break;
+            }
+
+            // Attend un point-virgule pour terminer la déclaration de variable
+            Test_Symbole(PV_TOKEN, PV_ERR);
+
+        } while (SYM_COUR.CODE == ID_TOKEN);
+
         break;
     case BEGIN_TOKEN:
         break;
@@ -609,7 +692,7 @@ void CAS(){
 
 
 int main(){
-    fichier = fopen("program.txt", "r");
+    fichier = fopen("program_type.txt", "r");
     if (fichier == NULL){
         perror("Erreur lors de l'ouverture du fichier");
         return 1;
