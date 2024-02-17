@@ -812,7 +812,7 @@ const char* MNEString(MNEMONIQUES mne) {
 
 
 int main(){
-    fichier = fopen("program.txt", "r");
+    fichier = fopen("program_type.txt", "r");
     if (fichier == NULL){
         perror("Erreur lors de l'ouverture du fichier");
         return 1;
