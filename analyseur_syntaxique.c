@@ -274,6 +274,7 @@ void Sym_Suiv(){
     }
     printf("Symbol: %s\n", SYM_COUR.NOM);
 }
+
 void Lire_Car(){
     Car_Cour = fgetc(fichier);
 }
