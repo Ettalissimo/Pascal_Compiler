@@ -5,7 +5,7 @@
 
 
 #ifdef _WIN32
-#define STRCASECMP STRCASECMP
+#define STRCASECMP strcmp
 #else
 #define STRCASECMP strcasecmp
 #endif

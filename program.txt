@@ -1,0 +1,11 @@
+program test11;
+var A,B;
+Begin
+    repeat
+        Begin
+            read(A);
+            B:=A+B
+        end
+    until A = 0;
+    write(B);
+end.
