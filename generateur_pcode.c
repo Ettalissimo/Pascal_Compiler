@@ -7,7 +7,11 @@
 #define TAILLEMEM 100
 #define TAILLECODE 100
 
-
+#ifdef _WIN32
+#define STRCASECMP stricmp
+#else
+#define STRCASECMP strcasecmp
+#endif
 
 typedef enum {
     ID_TOKEN, PROGRAM_TOKEN, CONST_TOKEN, VAR_TOKEN,
@@ -34,10 +38,11 @@ typedef enum {
     NUM_ERR, ERREUR_ERR, FIN_ERR, EG_ERR,
     CONST_VAR_BEGIN_ERR, VAR_BEGIN_ERR, REPEAT_ERR, UNTIL_ERR,
     FOR_ERR, ELSE_ERR, CASE_ERR, OF_ERR,
-    INTO_ERR, DOWNTO_ERR, DDOT_ERR, DD_ERR, ND_ERR, ID_NUM_PO_ERR
+    INTO_ERR, DOWNTO_ERR, DDOT_ERR, DD_ERR,
+    ND_ERR, ID_NUM_PO_ERR,INST_PCODE_ERR
 } CODES_ERR;
 
-FILE *fichier;
+FILE *fichier,*FICH_SORTIE;
 char Car_Cour;
 
 void PROGRAM();
@@ -88,7 +93,7 @@ SYMBOLE TABLESYM[TABLEINDEX];
 int OFFSET = -1;
 int IND_DER_SYM_ACC = 0;
 int PC = 0;
-int SP;
+int SP = -1;
 int index_Mots = 0;
 int choice;
 int IND_BZE;
@@ -109,7 +114,7 @@ typedef struct{
 }INSTRUCTION;
 
 INSTRUCTION PCODE[TAILLECODE];
-TSym_Cour sym;
+TSym_Cour sym,sym2,sym3;
 
 void Lire_Car() {
     Car_Cour = fgetc(fichier);
@@ -140,55 +145,61 @@ void lire_mot(){
         Lire_Car();
     }
     mot[indice] = '\0';
-    if (stricmp(mot, "program") == 0){
+    if (STRCASECMP(mot, "program") == 0){
         SYM_COUR.CODE = PROGRAM_TOKEN;
     }
-    else if (stricmp(mot, "const") == 0){
+    else if (STRCASECMP(mot, "const") == 0){
         SYM_COUR.CODE = CONST_TOKEN;
     }
-    else if (stricmp(mot, "var") == 0){
+    else if (STRCASECMP(mot, "var") == 0){
         SYM_COUR.CODE = VAR_TOKEN;
     }
-    else if (stricmp(mot, "begin") == 0){
+    else if (STRCASECMP(mot, "begin") == 0){
         SYM_COUR.CODE = BEGIN_TOKEN;
     }
-    else if (stricmp(mot, "end") == 0){
+    else if (STRCASECMP(mot, "end") == 0){
         SYM_COUR.CODE = END_TOKEN;
     }
-    else if (stricmp(mot, "if") == 0){
+    else if (STRCASECMP(mot, "if") == 0){
         SYM_COUR.CODE = IF_TOKEN;
     }
-    else if (stricmp(mot, "then") == 0){
+    else if (STRCASECMP(mot, "then") == 0){
         SYM_COUR.CODE = THEN_TOKEN;
     }
-    else if (stricmp(mot, "while") == 0){
+    else if (STRCASECMP(mot, "while") == 0){
         SYM_COUR.CODE = WHILE_TOKEN;
     }
-    else if (stricmp(mot, "do") == 0){
+    else if (STRCASECMP(mot, "do") == 0){
         SYM_COUR.CODE = DO_TOKEN;
     }
-    else if (stricmp(mot, "read") == 0){
+    else if (STRCASECMP(mot, "read") == 0){
         SYM_COUR.CODE = READ_TOKEN;
     }
-    else if (stricmp(mot, "write") == 0){
+    else if (STRCASECMP(mot, "write") == 0){
         SYM_COUR.CODE = WRITE_TOKEN;
     }
-    else if (stricmp(mot, "else") == 0){
+    else if (STRCASECMP(mot, "else") == 0){
         SYM_COUR.CODE = ELSE_TOKEN;
     }
-    else if (stricmp(mot, "repeat") == 0){
+    else if (STRCASECMP(mot, "repeat") == 0){
         SYM_COUR.CODE = REPEAT_TOKEN;
     }
-    else if (stricmp(mot, "until") == 0){
+    else if (STRCASECMP(mot, "until") == 0){
         SYM_COUR.CODE = UNTIL_TOKEN;
     }
-    else if (stricmp(mot, "for") == 0){
+    else if (STRCASECMP(mot, "for") == 0){
         SYM_COUR.CODE = FOR_TOKEN;
     }
-    else if (stricmp(mot, "case") == 0){
+    else if (STRCASECMP(mot, "downto") == 0) {
+        SYM_COUR.CODE = DOWNTO_TOKEN;
+    }
+    else if (STRCASECMP(mot, "to") == 0) {
+        SYM_COUR.CODE = INTO_TOKEN;
+    }
+    else if (STRCASECMP(mot, "case") == 0){
         SYM_COUR.CODE = CASE_TOKEN;
     }
-    else if (stricmp(mot, "of") == 0){
+    else if (STRCASECMP(mot, "of") == 0){
         SYM_COUR.CODE = OF_TOKEN;
     }
     else{
@@ -211,31 +222,37 @@ void Sym_Suiv(){
         s[0] = Car_Cour;
         switch (Car_Cour){
         case ';':
+            s[1] = '\0';
             SYM_COUR.CODE = PV_TOKEN;
             Lire_Car();
             break;
 
         case '+':
+            s[1] = '\0';
             SYM_COUR.CODE = PLUS_TOKEN;
             Lire_Car();
             break;
 
         case '-':
+            s[1] = '\0';
             SYM_COUR.CODE = MOINS_TOKEN;
             Lire_Car();
             break;
 
         case '*':
+            s[1] = '\0';
             SYM_COUR.CODE = MULT_TOKEN;
             Lire_Car();
             break;
 
         case '/':
+            s[1] = '\0';
             SYM_COUR.CODE = DIV_TOKEN;
             Lire_Car();
             break;
 
         case ',':
+            s[1] = '\0';
             SYM_COUR.CODE = VIR_TOKEN;
             Lire_Car();
             break;
@@ -249,6 +266,7 @@ void Sym_Suiv(){
                 Lire_Car();
             }
             else{
+                s[1] = '\0';
                 SYM_COUR.CODE = DDOT_TOKEN;
             }
             break;
@@ -268,6 +286,7 @@ void Sym_Suiv(){
                 Lire_Car();
             }
             else{
+                s[1] = '\0';
                 SYM_COUR.CODE = INF_TOKEN;
             }
             break;
@@ -281,39 +300,47 @@ void Sym_Suiv(){
                 Lire_Car();
             }
             else{
+                s[1] = '\0';
                 SYM_COUR.CODE = SUP_TOKEN;
             }
             break;
 
         case '(':
+            s[1] = '\0';
             SYM_COUR.CODE = PO_TOKEN;
             Lire_Car();
             break;
         case '=':
+            s[1] = '\0';
             SYM_COUR.CODE = EG_TOKEN;
             Lire_Car();
             break;
 
         case ')':
+            s[1] = '\0';
             SYM_COUR.CODE = PF_TOKEN;
             Lire_Car();
             break;
 
         case '.':
+            s[1] = '\0';
             SYM_COUR.CODE = PT_TOKEN;
             Lire_Car();
             break;
 
         case EOF:
+            s[1] = '\0';
             SYM_COUR.CODE = EOF_TOKEN;
             break;
 
         default:
+            s[1] = '\0';
             SYM_COUR.CODE = ERREUR_TOKEN;
             Lire_Car();
         }
         strcpy(SYM_COUR.NOM,s);
     }
+    printf("Symbol: %s\n", SYM_COUR.NOM);
 }
 
 void Erreur(CODES_ERR code){
@@ -325,7 +352,7 @@ void Erreur(CODES_ERR code){
 
 int RechercherSym(char mot[20]){
     for(int i = 0;i<index_Mots;i++){
-        if(!strcmp(TABLESYM[i].NOM,mot)){
+        if(!STRCASECMP(TABLESYM[i].NOM,mot)){
             return i;
         }
     }
@@ -372,11 +399,6 @@ void Test_Symbole(CODES_LEX cl, CODES_ERR COD_ERR){
 
 
 
-void Test_entrer(CODES_LEX cl,CODES_ERR COD_ERR){
-    TABLESYM[IND_DER_SYM_ACC].CLASSE = cl;
-    strcpy(TABLESYM[IND_DER_SYM_ACC].NOM,SYM_COUR.NOM);
-}
-
 void GENERER2(MNEMONIQUES M, int A) {
     if (PC == TAILLECODE) {
         printf("ERROR: PC is equal to TAILLECODE.\n");
@@ -400,11 +422,11 @@ void GENERER1(MNEMONIQUES M) {
 
 
 void BLOCK(){
-    OFFSET = 0;
+    OFFSET = -1;
     CONSTS();
     VARS();
     PCODE[0].MNE = INT;
-    PCODE[0].SUITE = OFFSET;
+    PCODE[0].SUITE = OFFSET+1;
     INSTS();
 }
 
@@ -430,9 +452,10 @@ void AFFEC(){
 void EXPR(){
     TERM();
     while ((SYM_COUR.CODE==PLUS_TOKEN) || (SYM_COUR.CODE==MOINS_TOKEN)){
+        sym = SYM_COUR;
         Sym_Suiv();
         TERM();
-        if(SYM_COUR.CODE==PLUS_TOKEN) GENERER1(ADD);
+        if(sym.CODE==PLUS_TOKEN) GENERER1(ADD);
         else GENERER1(SUB);
     }
 }
@@ -440,9 +463,10 @@ void EXPR(){
 void TERM(){
     FACT();
     while ((SYM_COUR.CODE==MULT_TOKEN) || (SYM_COUR.CODE==DIV_TOKEN)){
+        sym = SYM_COUR;
         Sym_Suiv();
         FACT();
-        if(SYM_COUR.CODE==MULT_TOKEN) GENERER1(MUL);
+        if(sym.CODE==MULT_TOKEN) GENERER1(MUL);
         else GENERER1(DIV);
     }
 }
@@ -712,31 +736,72 @@ void INST(){
         break;
     }
 }
+
 void POUR(){
     Test_Symbole(FOR_TOKEN, FOR_ERR);
+    sym = SYM_COUR;
     AFFEC();
     switch (SYM_COUR.CODE){
         case DOWNTO_TOKEN:
+            sym3 = SYM_COUR;
             Test_Symbole(DOWNTO_TOKEN, DOWNTO_ERR);
             break;
         case INTO_TOKEN:
+            sym3 = SYM_COUR;
             Test_Symbole(INTO_TOKEN, INTO_ERR);
             break;
         default:
             Erreur(ERREUR_ERR);
             break;
     }
-
+    sym2 = SYM_COUR;
     Test_Symbole(NUM_TOKEN, NUM_ERR);
     Test_Symbole(DO_TOKEN, DO_ERR);
+    LABEL_BRN = PC+1;
+    Codage_Lex(sym.NOM);
+    GENERER2(LDA, TABLESYM[IND_DER_SYM_ACC].ADRESSE);
+    GENERER1(LDV);
+    GENERER2(LDI, atoi(sym2.NOM));
+    switch (sym3.CODE){
+        case DOWNTO_TOKEN:
+            GENERER1(GEQ);
+            break;
+        case INTO_TOKEN:
+            GENERER1(LEQ);
+            break;
+        default:
+            break;
+    }
+    IND_BZE = PC+1;
+    GENERER1(BZE);
     INST();
+    Codage_Lex(sym.NOM);
+    GENERER2(LDA,TABLESYM[IND_DER_SYM_ACC].ADRESSE);
+    GENERER2(LDA,TABLESYM[IND_DER_SYM_ACC].ADRESSE);
+    GENERER1(LDV);
+    GENERER2(LDI,1);
+    switch (sym3.CODE){
+        case DOWNTO_TOKEN:
+            GENERER1(SUB);
+            break;
+        case INTO_TOKEN:
+            GENERER1(ADD);
+            break;
+        default:
+            break;
+    }
+    GENERER1(STO);
+    GENERER2(BRN,LABEL_BRN);
+    PCODE[IND_BZE].SUITE = PC+1;
 }
 
 void REPETER(){
     Test_Symbole(REPEAT_TOKEN, REPEAT_ERR);
+    IND_BZE = PC+1;
     INST();
     Test_Symbole(UNTIL_TOKEN, UNTIL_ERR);
     COND();
+    GENERER2(BZE,IND_BZE);
 }
 
 void CAS(){
@@ -810,9 +875,75 @@ const char* MNEString(MNEMONIQUES mne) {
     }
 }
 
+void SaveInstToFile(INSTRUCTION INST) {
+    switch (INST.MNE) {
+        case LDA:
+            fprintf(FICH_SORTIE, "%s\t%d\n", "LDA", INST.SUITE);
+            break;
+        case LDI:
+            fprintf(FICH_SORTIE, "%s\t%d\n", "LDI", INST.SUITE);
+            break;
+        case INT:
+            fprintf(FICH_SORTIE, "%s\t%d\n", "INT", INST.SUITE);
+            break;
+        case BZE:
+            fprintf(FICH_SORTIE, "%s\t%d\n", "BZE", INST.SUITE);
+            break;
+        case BRN:
+            fprintf(FICH_SORTIE, "%s\t%d\n", "BRN", INST.SUITE);
+            break;
+        case LDV:
+            fprintf(FICH_SORTIE, "%s\n", "LDV");
+            break;
+        case ADD:
+            fprintf(FICH_SORTIE, "%s\n", "ADD");
+            break;
+        case SUB:
+            fprintf(FICH_SORTIE, "%s\n", "SUB");
+            break;
+        case MUL:
+            fprintf(FICH_SORTIE, "%s\n", "MUL");
+            break;
+        case DIV:
+            fprintf(FICH_SORTIE, "%s\n", "DIV");
+            break;
+        case LEQ:
+            fprintf(FICH_SORTIE, "%s\n", "LEQ");
+            break;
+        case GEQ:
+            fprintf(FICH_SORTIE, "%s\n", "GEQ");
+            break;
+        case NEQ:
+            fprintf(FICH_SORTIE, "%s\n", "NEQ");
+            break;
+        case LSS:
+            fprintf(FICH_SORTIE, "%s\n", "LSS");
+            break;
+        case GTR:
+            fprintf(FICH_SORTIE, "%s\n", "GTR");
+            break;
+        case HLT:
+            fprintf(FICH_SORTIE, "%s", "HLT");
+            break;
+        case STO:
+            fprintf(FICH_SORTIE, "%s\n", "STO");
+            break;
+        case INN:
+            fprintf(FICH_SORTIE, "%s\n", "INN");
+            break;
+        case PRN:
+            fprintf(FICH_SORTIE, "%s\n", "PRN");
+            break;
+        default:
+            Erreur(INST_PCODE_ERR);
+            break;
+    }
+}
+
 
 int main(){
-    fichier = fopen("program.txt", "r");
+    fichier = fopen("program2.txt", "r");
+    FICH_SORTIE = fopen("fichierSortie.txt","w+");
     if (fichier == NULL){
         perror("Erreur lors de l'ouverture du fichier");
         return 1;
@@ -823,11 +954,10 @@ int main(){
     printf("Program execution completed.\n");
     if (SYM_COUR.CODE == EOF_TOKEN){
         printf("BRAVO: le programme est correcte!!!\n");
-        printf("PCODE du programme :\n");
         for(int i = 0;i<PC+1;i++){
-            if(PCODE[i].SUITE!=-1) printf("%s %d\n",MNEString(PCODE[i].MNE),PCODE[i].SUITE);
-            else printf("%s\n",MNEString(PCODE[i].MNE));
+            SaveInstToFile(PCODE[i]);
         }
+        printf("PCODE généré avec succès!!!\n");
     }
     else{
         printf("PAS BRAVO: fin de programme erronée!!!!\n");
@@ -837,6 +967,7 @@ int main(){
     }
 
     fclose(fichier);
+    fclose(FICH_SORTIE);
 
     return 0;
 }

@@ -1,0 +1,9 @@
+program test11;
+var a,b;
+Begin
+    read(b);
+    for a := b  to 20 do
+    Begin
+        write(a)
+    end;
+end.
