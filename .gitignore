@@ -1,6 +1,3 @@
 # Ignore specific file
 analyseur_lexical
 analyseur_syntaxique
-
-#Ignore files .txt
-*.txt
