@@ -1,10 +1,14 @@
 program test11;
-const toto=21.2; titi=13;
+const toto=21.2; 
+      titi=13;  
+      MessageWELCOME = 0; //test de commentaire
 var x,y : integer; 
     b : char; 
     c : string;
+    /* autre type de commentaire*/
 Begin
     x:=toto;
     read(y);
     write(x)
+    {autre type de commentaire}
 end.
