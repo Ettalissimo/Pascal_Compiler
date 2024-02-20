@@ -243,31 +243,37 @@ void Sym_Suiv(){
         s[0] = Car_Cour;
         switch (Car_Cour){
         case ';':
+            s[1] = '\0';
             SYM_COUR.CODE = PV_TOKEN;
             Lire_Car();
             break;
 
         case '+':
+            s[1] = '\0';
             SYM_COUR.CODE = PLUS_TOKEN;
             Lire_Car();
             break;
 
         case '-':
+            s[1] = '\0';
             SYM_COUR.CODE = MOINS_TOKEN;
             Lire_Car();
             break;
 
         case '*':
+            s[1] = '\0';
             SYM_COUR.CODE = MULT_TOKEN;
             Lire_Car();
             break;
 
         case '/':
+            s[1] = '\0';
             SYM_COUR.CODE = DIV_TOKEN;
             Lire_Car();
             break;
 
         case ',':
+            s[1] = '\0';
             SYM_COUR.CODE = VIR_TOKEN;
             Lire_Car();
             break;
@@ -281,6 +287,7 @@ void Sym_Suiv(){
                 Lire_Car();
             }
             else{
+                s[1] = '\0';
                 SYM_COUR.CODE = DDOT_TOKEN;
             }
             break;
@@ -300,6 +307,7 @@ void Sym_Suiv(){
                 Lire_Car();
             }
             else{
+                s[1] = '\0';
                 SYM_COUR.CODE = INF_TOKEN;
             }
             break;
@@ -313,34 +321,41 @@ void Sym_Suiv(){
                 Lire_Car();
             }
             else{
+                s[1] = '\0';
                 SYM_COUR.CODE = SUP_TOKEN;
             }
             break;
 
         case '(':
+            s[1] = '\0';
             SYM_COUR.CODE = PO_TOKEN;
             Lire_Car();
             break;
         case '=':
+            s[1] = '\0';
             SYM_COUR.CODE = EG_TOKEN;
             Lire_Car();
             break;
 
         case ')':
+            s[1] = '\0';
             SYM_COUR.CODE = PF_TOKEN;
             Lire_Car();
             break;
 
         case '.':
+            s[1] = '\0';
             SYM_COUR.CODE = PT_TOKEN;
             Lire_Car();
             break;
 
         case EOF:
+            s[1] = '\0';
             SYM_COUR.CODE = EOF_TOKEN;
             break;
 
         default:
+            s[1] = '\0';
             SYM_COUR.CODE = ERREUR_TOKEN;
             Lire_Car();
         }
