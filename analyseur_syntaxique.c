@@ -202,10 +202,35 @@ void lire_nombre(){
 
     strcpy(SYM_COUR.NOM, nombre);
 }
+void Skip_Comments() {
+    if (Car_Cour == '/') {
+        Lire_Car(); 
+        if (Car_Cour == '/') { 
+            while (Car_Cour != '\n' && Car_Cour != EOF) {
+                Lire_Car();
+            }
+        } else if (Car_Cour == '*') { 
+            Lire_Car(); 
+            while (!(Car_Cour == '*' && fgetc(fichier) == '/') && Car_Cour != EOF) {
+                Lire_Car();
+            }
+            Lire_Car(); 
+        } else {
+            Car_Cour = '/';
+        }
+    }
+}
 
 void Sym_Suiv(){
-    while (Car_Cour == ' ' || Car_Cour == '\n' || Car_Cour == '\t'){
-        Lire_Car();
+    while (Car_Cour == ' ' || Car_Cour == '\n' || Car_Cour == '\t' || Car_Cour == '/' || Car_Cour == '{') {
+        if (Car_Cour == '{') { 
+            while (Car_Cour != '}' && Car_Cour != EOF) {
+                Lire_Car(); 
+            }
+            Lire_Car(); 
+        }
+        Skip_Comments(); 
+        Lire_Car(); 
     }
     if (isalpha(Car_Cour)){
         lire_mot();
@@ -218,31 +243,37 @@ void Sym_Suiv(){
         s[0] = Car_Cour;
         switch (Car_Cour){
         case ';':
+            s[1] = '\0';
             SYM_COUR.CODE = PV_TOKEN;
             Lire_Car();
             break;
 
         case '+':
+            s[1] = '\0';
             SYM_COUR.CODE = PLUS_TOKEN;
             Lire_Car();
             break;
 
         case '-':
+            s[1] = '\0';
             SYM_COUR.CODE = MOINS_TOKEN;
             Lire_Car();
             break;
 
         case '*':
+            s[1] = '\0';
             SYM_COUR.CODE = MULT_TOKEN;
             Lire_Car();
             break;
 
         case '/':
+            s[1] = '\0';
             SYM_COUR.CODE = DIV_TOKEN;
             Lire_Car();
             break;
 
         case ',':
+            s[1] = '\0';
             SYM_COUR.CODE = VIR_TOKEN;
             Lire_Car();
             break;
@@ -256,6 +287,7 @@ void Sym_Suiv(){
                 Lire_Car();
             }
             else{
+                s[1] = '\0';
                 SYM_COUR.CODE = DDOT_TOKEN;
             }
             break;
@@ -275,6 +307,7 @@ void Sym_Suiv(){
                 Lire_Car();
             }
             else{
+                s[1] = '\0';
                 SYM_COUR.CODE = INF_TOKEN;
             }
             break;
@@ -288,34 +321,41 @@ void Sym_Suiv(){
                 Lire_Car();
             }
             else{
+                s[1] = '\0';
                 SYM_COUR.CODE = SUP_TOKEN;
             }
             break;
 
         case '(':
+            s[1] = '\0';
             SYM_COUR.CODE = PO_TOKEN;
             Lire_Car();
             break;
         case '=':
+            s[1] = '\0';
             SYM_COUR.CODE = EG_TOKEN;
             Lire_Car();
             break;
 
         case ')':
+            s[1] = '\0';
             SYM_COUR.CODE = PF_TOKEN;
             Lire_Car();
             break;
 
         case '.':
+            s[1] = '\0';
             SYM_COUR.CODE = PT_TOKEN;
             Lire_Car();
             break;
 
         case EOF:
+            s[1] = '\0';
             SYM_COUR.CODE = EOF_TOKEN;
             break;
 
         default:
+            s[1] = '\0';
             SYM_COUR.CODE = ERREUR_TOKEN;
             Lire_Car();
         }
@@ -357,7 +397,7 @@ void BLOCK(){
     VARS();
     INSTS();
 }
-
+/*
 void CONSTS() {
     switch (SYM_COUR.CODE) {
     case CONST_TOKEN:
@@ -396,7 +436,62 @@ void CONSTS() {
         Erreur(CONST_VAR_BEGIN_ERR);
         break;
     }
+}*/
+
+void CONSTS() {
+    switch (SYM_COUR.CODE) {
+    case CONST_TOKEN:
+        Sym_Suiv();
+        Test_Symbole(ID_TOKEN, ID_ERR);
+        Test_Symbole(EG_TOKEN, EG_ERR);
+
+        // Vérifie le type de la constante
+        switch (SYM_COUR.CODE) {
+        case INT_TOKEN:
+        case REAL_TOKEN:
+        case CHAR_TOKEN:
+        case STRING_TOKEN:
+        case BOOL_TOKEN:
+            Sym_Suiv();
+            break;
+        default:
+            Erreur(NUM_ERR); // Erreur si le type n'est pas reconnu
+            break;
+        }
+
+        Test_Symbole(PV_TOKEN, PV_ERR);
+
+        while (SYM_COUR.CODE == ID_TOKEN) {
+            Sym_Suiv();
+            Test_Symbole(EG_TOKEN, EG_ERR);
+
+            // Vérifie le type de chaque identifiant
+            switch (SYM_COUR.CODE) {
+            case INT_TOKEN:
+            case REAL_TOKEN:
+            case CHAR_TOKEN:
+            case STRING_TOKEN:
+            case BOOL_TOKEN:
+                Sym_Suiv();
+                break;
+            default:
+                Erreur(NUM_ERR); // Erreur si le type n'est pas reconnu
+                break;
+            }
+
+            Test_Symbole(PV_TOKEN, PV_ERR);
+        }
+        break;
+    case VAR_TOKEN:
+        break;
+    case BEGIN_TOKEN:
+        break;
+    default:
+        Erreur(CONST_VAR_BEGIN_ERR);
+        break;
+    }
 }
+
 
 void VARS() {
     switch (SYM_COUR.CODE) {
