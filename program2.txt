@@ -1,8 +1,7 @@
 program test11;
-var a,b:integer;
+var a,b;
 Begin
-    read(b);
-    for a := b  to 20 do
+    for a := b  to test11 do
     Begin
         write(a)
     end;
