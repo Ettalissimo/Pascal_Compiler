@@ -24,7 +24,10 @@ typedef enum {
     NUM_TOKEN, ERREUR_TOKEN, FIN_TOKEN, EG_TOKEN,
     REPEAT_TOKEN, UNTIL_TOKEN, FOR_TOKEN, ELSE_TOKEN,
     CASE_TOKEN, OF_TOKEN, INTO_TOKEN, DOWNTO_TOKEN,
-    DDOT_TOKEN
+    DDOT_TOKEN,
+    // Added new type tokens
+    INT_TOKEN, BOOL_TOKEN, REAL_TOKEN,
+    CHAR_TOKEN, STRING_TOKEN  
 } CODES_LEX;
 
 typedef enum {
@@ -39,7 +42,10 @@ typedef enum {
     CONST_VAR_BEGIN_ERR, VAR_BEGIN_ERR, REPEAT_ERR, UNTIL_ERR,
     FOR_ERR, ELSE_ERR, CASE_ERR, OF_ERR,
     INTO_ERR, DOWNTO_ERR, DDOT_ERR, DD_ERR,
-    ND_ERR, ID_NUM_PO_ERR,INST_PCODE_ERR
+    ND_ERR, ID_NUM_PO_ERR,INST_PCODE_ERR,
+    //type Errors
+    TYPE_ERR, INT_ERR, BOOL_ERR, REAL_ERR,
+    CHAR_ERR, STRING_ERR  
 } CODES_ERR;
 
 FILE *fichier,*FICH_SORTIE;
@@ -201,6 +207,21 @@ void lire_mot(){
     }
     else if (STRCASECMP(mot, "of") == 0){
         SYM_COUR.CODE = OF_TOKEN;
+
+    }else if (STRCASECMP(mot, "integer") == 0){  // Recognize int keyword
+        SYM_COUR.CODE = INT_TOKEN;
+    }
+    else if (STRCASECMP(mot, "boolean") == 0){  // Recognize bool keyword
+        SYM_COUR.CODE = BOOL_TOKEN;
+    }
+    else if (STRCASECMP(mot, "real") == 0){  // Recognize float keyword
+        SYM_COUR.CODE = REAL_TOKEN;
+    }
+    else if (STRCASECMP(mot, "char") == 0){  // Recognize char keyword
+        SYM_COUR.CODE = CHAR_TOKEN;
+    }
+    else if (STRCASECMP(mot, "string") == 0){  // Recognize string keyword
+        SYM_COUR.CODE = STRING_TOKEN;
     }
     else{
         SYM_COUR.CODE = ID_TOKEN;
@@ -633,6 +654,20 @@ void CONSTS() {
             Test_Symbole(NUM_TOKEN, NUM_ERR);
             GENERER2(LDI, atoi(sym.NOM));
             GENERER1(STO);
+            // Vérifie le type de la constante
+            switch (SYM_COUR.CODE) {
+            case INT_TOKEN:
+            case REAL_TOKEN:
+            case CHAR_TOKEN:
+            case STRING_TOKEN:
+            case BOOL_TOKEN:
+                Sym_Suiv();
+                break;
+            default:
+                Erreur(NUM_ERR); // Erreur si le type n'est pas reconnu
+                break;
+            }
+
             Test_Symbole(PV_TOKEN, PV_ERR);
 
             while (SYM_COUR.CODE == ID_TOKEN) {
@@ -645,6 +680,19 @@ void CONSTS() {
                 Test_Symbole(NUM_TOKEN, NUM_ERR);
                 GENERER2(LDI, atoi(sym.NOM));
                 GENERER1(STO);
+                // Vérifie le type de chaque identifiant
+                switch (SYM_COUR.CODE) {
+                case INT_TOKEN:
+                case REAL_TOKEN:
+                case CHAR_TOKEN:
+                case STRING_TOKEN:
+                case BOOL_TOKEN:
+                    Sym_Suiv();
+                    break;
+                default:
+                    Erreur(NUM_ERR); // Erreur si le type n'est pas reconnu
+                    break;
+                }
                 Test_Symbole(PV_TOKEN, PV_ERR);
             };
             break;
@@ -667,6 +715,19 @@ void VARS(){
             sym = SYM_COUR;
             Test_Symbole(ID_TOKEN, ID_ERR);
             Codage_Lex(sym.NOM);
+        }
+        // Gère le type de chaque variable
+        switch (SYM_COUR.CODE) {
+        case INT_TOKEN:
+        case BOOL_TOKEN:
+        case REAL_TOKEN:
+        case CHAR_TOKEN:                
+        case STRING_TOKEN:
+                Sym_Suiv();
+                break;
+            default:
+                Erreur(ERREUR_ERR);  // Erreur si le type n'est pas valide
+                break;
         }
         Test_Symbole(PV_TOKEN, PV_ERR);
         break;

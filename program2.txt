@@ -1,6 +1,7 @@
 program test11;
 var a,b;
 Begin
+    var a;
     for a := b  to test11 do
     Begin
         write(a)

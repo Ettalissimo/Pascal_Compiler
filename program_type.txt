@@ -1,12 +1,12 @@
 program test11;
 const toto=21.2; 
-      titi=13;  
+      titi=13; 
       MessageWELCOME = 0; //test de commentaire
 var x,y : integer; 
     b : char; 
     c : string;
     /* autre type de commentaire*/
-Begin
+begin
     x:=toto;
     read(y);
     write(x)

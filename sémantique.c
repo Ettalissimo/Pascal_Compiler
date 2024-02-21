@@ -81,70 +81,70 @@ void lire_mot(){
         Lire_Car();
     }
     mot[indice] = '\0';
-    if (STRCASECMP(mot, "program") == 0){
+    if (strcasecmp(mot, "program") == 0){
         SYM_COUR.CODE = PROGRAM_TOKEN;
     }
-    else if (STRCASECMP(mot, "const") == 0){
+    else if (strcasecmp(mot, "const") == 0){
         SYM_COUR.CODE = CONST_TOKEN;
     }
-    else if (STRCASECMP(mot, "var") == 0){
+    else if (strcasecmp(mot, "var") == 0){
         SYM_COUR.CODE = VAR_TOKEN;
     }
-    else if (STRCASECMP(mot, "begin") == 0){
+    else if (strcasecmp(mot, "begin") == 0){
         SYM_COUR.CODE = BEGIN_TOKEN;
     }
-    else if (STRCASECMP(mot, "end") == 0){
+    else if (strcasecmp(mot, "end") == 0){
         SYM_COUR.CODE = END_TOKEN;
     }
-    else if (STRCASECMP(mot, "if") == 0){
+    else if (strcasecmp(mot, "if") == 0){
         SYM_COUR.CODE = IF_TOKEN;
     }
-    else if (STRCASECMP(mot, "then") == 0){
+    else if (strcasecmp(mot, "then") == 0){
         SYM_COUR.CODE = THEN_TOKEN;
     }
-    else if (STRCASECMP(mot, "while") == 0){
+    else if (strcasecmp(mot, "while") == 0){
         SYM_COUR.CODE = WHILE_TOKEN;
     }
-    else if (STRCASECMP(mot, "do") == 0){
+    else if (strcasecmp(mot, "do") == 0){
         SYM_COUR.CODE = DO_TOKEN;
     }
-    else if (STRCASECMP(mot, "read") == 0){
+    else if (strcasecmp(mot, "read") == 0){
         SYM_COUR.CODE = READ_TOKEN;
     }
-    else if (STRCASECMP(mot, "write") == 0){
+    else if (strcasecmp(mot, "write") == 0){
         SYM_COUR.CODE = WRITE_TOKEN;
     }
-    else if (STRCASECMP(mot, "else") == 0){
+    else if (strcasecmp(mot, "else") == 0){
         SYM_COUR.CODE = ELSE_TOKEN;
     }
-    else if (STRCASECMP(mot, "repeat") == 0){
+    else if (strcasecmp(mot, "repeat") == 0){
         SYM_COUR.CODE = REPEAT_TOKEN;
     }
-    else if (STRCASECMP(mot, "until") == 0){
+    else if (strcasecmp(mot, "until") == 0){
         SYM_COUR.CODE = UNTIL_TOKEN;
     }
-    else if (STRCASECMP(mot, "for") == 0){
+    else if (strcasecmp(mot, "for") == 0){
         SYM_COUR.CODE = FOR_TOKEN;
     }
-    else if (STRCASECMP(mot, "case") == 0){
+    else if (strcasecmp(mot, "case") == 0){
         SYM_COUR.CODE = CASE_TOKEN;
     }
-    else if (STRCASECMP(mot, "of") == 0){
+    else if (strcasecmp(mot, "of") == 0){
         SYM_COUR.CODE = OF_TOKEN;
     }
-    else if (STRCASECMP(mot, "integer") == 0){  // Recognize int keyword
+    else if (strcasecmp(mot, "integer") == 0){  // Recognize int keyword
         SYM_COUR.CODE = INT_TOKEN;
     }
-    else if (STRCASECMP(mot, "boolean") == 0){  // Recognize bool keyword
+    else if (strcasecmp(mot, "boolean") == 0){  // Recognize bool keyword
         SYM_COUR.CODE = BOOL_TOKEN;
     }
-    else if (STRCASECMP(mot, "real") == 0){  // Recognize float keyword
+    else if (strcasecmp(mot, "real") == 0){  // Recognize float keyword
         SYM_COUR.CODE = REAL_TOKEN;
     }
-    else if (STRCASECMP(mot, "char") == 0){  // Recognize char keyword
+    else if (strcasecmp(mot, "char") == 0){  // Recognize char keyword
         SYM_COUR.CODE = CHAR_TOKEN;
     }
-    else if (STRCASECMP(mot, "string") == 0){  // Recognize string keyword
+    else if (strcasecmp(mot, "string") == 0){  // Recognize string keyword
         SYM_COUR.CODE = STRING_TOKEN;
     }
     else{
@@ -319,8 +319,7 @@ void PROGRAM(){
 }
 
 void BLOCK(){
-   
-     CONSTS();
+    CONSTS();
     VARS();
     INSTS();
 }
@@ -681,7 +680,7 @@ void CAS(){
 
 
 int main() {
-    fichier = fopen("program.txt", "r");
+    fichier = fopen("program_type.txt", "r");
     if (fichier == NULL) {
         fprintf(stderr, "Impossible d'ouvrir le fichier source.txt\n");
         return EXIT_FAILURE;

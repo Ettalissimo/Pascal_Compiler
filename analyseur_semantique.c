@@ -894,7 +894,7 @@ void CAS(){
 
 
 int main() {
-    fichier = fopen("program2.txt", "r");
+    fichier = fopen("program_type.txt", "r");
     if (fichier == NULL) {
         perror("Erreur lors de l'ouverture du fichier");
         return 1;
