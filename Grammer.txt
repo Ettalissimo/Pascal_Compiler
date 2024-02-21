@@ -1,0 +1,24 @@
+PROGRAM ::= program ID ; BLOCK .
+BLOCK ::= CONSTS VARS INSTS
+CONSTS ::= const ID = NUM ; { ID = NUM ; } | e
+TYPE ::= type ID = array [FACT..FACT] of PREDEFTYPE; { ID = array [FACT..FACT] of PREDEFTYPE; } | e
+
+VARS ::= var ID { , ID } : PREDEFTYPE ; { ID  : PREDEFTYPE ;} | e
+INSTS ::= begin INST { ; INST } end
+INST::= INSTS | AFFEC | SI | TANTQUE | ECRIRE | LIRE | e
+AFFEC ::= ID INDICE := EXPR
+INDICE ::= [ FACT ] | e
+
+SI ::= if COND then INST
+TANTQUE ::= while COND do INST
+ECRIRE ::= write ( EXPR { , EXPR } )
+LIRE ::= read ( ID { , ID } )
+COND ::= EXPR RELOP EXPR
+RELOP ::= = | <> | < | > | <= | >=
+EXPR ::= TERM { ADDOP TERM }
+ADDOP ::= +|-
+TERM ::= FACT { MULOP FACT }
+MULOP ::= *|/
+FACT ::= ID | NUM | ( EXPR )
+
+PREDEFTYPE = integer | real | string | char | boolean 

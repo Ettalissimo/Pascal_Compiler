@@ -208,6 +208,7 @@ void lire_nombre(){
 
     strcpy(SYM_COUR.NOM, nombre);
 }
+
 void Skip_Comments() {
     if (Car_Cour == '/') {
         Lire_Car(); 

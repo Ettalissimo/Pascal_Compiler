@@ -1,6 +1,10 @@
 program test11;
+<<<<<<< HEAD
 const x=10;
 var a,b:integer;
+=======
+var a,b : integer;
+>>>>>>> 29da0e1955dd56150ddd6695ff6aa5001b86d55e
 Begin
     for a := 1  to 10 do
     Begin
