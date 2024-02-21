@@ -1,5 +1,5 @@
 program test11;
-var a,b;
+var a,b : integer;
 Begin
     read(b);
     for a := b  to 20 do

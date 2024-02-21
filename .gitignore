@@ -1,6 +1,7 @@
 # Ignore specific file
 analyseur_lexical
 analyseur_syntaxique
+generateur_pcode
 
 # Ignore les fichiers exécutables
 *.exe

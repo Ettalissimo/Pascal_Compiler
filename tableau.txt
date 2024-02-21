@@ -1,0 +1,17 @@
+program test11;
+const Size=3;
+ //test de commentaire
+
+type tableau= array[1..Size] of integer;
+
+var x,y : integer; 
+    b : char; 
+    c : string;
+    /* autre type de commentaire*/
+
+Begin
+    x:=toto;
+    read(y);
+    write(x)
+    {autre type de commentaire}
+end.

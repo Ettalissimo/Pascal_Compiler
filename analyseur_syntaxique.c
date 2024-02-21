@@ -202,6 +202,7 @@ void lire_nombre(){
 
     strcpy(SYM_COUR.NOM, nombre);
 }
+
 void Skip_Comments() {
     if (Car_Cour == '/') {
         Lire_Car(); 
@@ -787,7 +788,7 @@ void CAS(){
 
 
 int main(){
-    fichier = fopen("program_type.txt", "r");
+    fichier = fopen("program2.txt", "r");
     if (fichier == NULL){
         perror("Erreur lors de l'ouverture du fichier");
         return 1;

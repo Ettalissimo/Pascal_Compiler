@@ -21,7 +21,10 @@ typedef enum {
     DIFF_TOKEN, PO_TOKEN,PF_TOKEN, FIN_TOKEN,
     NUM_TOKEN, ERREUR_TOKEN, EOF_TOKEN,EG_TOKEN,DDOT_TOKEN,
     //types tokens
-    INT_TOKEN, BOOL_TOKEN, REAL_TOKEN, CHAR_TOKEN, STRING_TOKEN
+    INT_TOKEN, BOOL_TOKEN, REAL_TOKEN, CHAR_TOKEN, STRING_TOKEN,
+    //type tableau
+    ARRAY_TOKEN,OPEN_BRACKET_TOKEN,CLOSE_BRACKET_TOKEN,OF_TOKEN,
+    TYPE_TOKEN,RANGE_OPERATER_TOKEN
 } CODES_LEX;
 
 FILE * fichier;
@@ -82,6 +85,14 @@ void lire_mot() {
         SYM_COUR.CODE = CHAR_TOKEN;
     } else if (STRCASECMP(mot, "string") == 0) {
         SYM_COUR.CODE = STRING_TOKEN;
+        //tableau
+    } else if (STRCASECMP(mot, "type") == 0) {
+        SYM_COUR.CODE = TYPE_TOKEN;
+    } else if (STRCASECMP(mot, "of") == 0) {
+        SYM_COUR.CODE = OF_TOKEN;
+    } else if (STRCASECMP(mot, "array") == 0) {
+        SYM_COUR.CODE = ARRAY_TOKEN;
+        //    
     } else {
         SYM_COUR.CODE = ID_TOKEN;
     }
@@ -103,103 +114,176 @@ void lire_nombre() {
     strcpy(SYM_COUR.NOM, nombre);
 }
 
-void Sym_Suiv() {
-    while (Car_Cour == ' ' || Car_Cour == '\n' || Car_Cour == '\t') {
-        Lire_Car();
+void Skip_Comments() {
+    if (Car_Cour == '/') {
+        Lire_Car(); 
+        if (Car_Cour == '/') { 
+            while (Car_Cour != '\n' && Car_Cour != EOF) {
+                Lire_Car();
+            }
+        } else if (Car_Cour == '*') { 
+            Lire_Car(); 
+            while (!(Car_Cour == '*' && fgetc(fichier) == '/') && Car_Cour != EOF) {
+                Lire_Car();
+            }
+            Lire_Car(); 
+        } else {
+            Car_Cour = '/';
+        }
+    }
+}
+
+
+void Sym_Suiv(){
+    while (Car_Cour == ' ' || Car_Cour == '\n' || Car_Cour == '\t' || Car_Cour == '/' || Car_Cour == '{') {
+        if (Car_Cour == '{') { 
+            while (Car_Cour != '}' && Car_Cour != EOF) {
+                Lire_Car(); 
+            }
+            Lire_Car(); 
+        }
+        Skip_Comments(); 
+        Lire_Car(); 
     }
     if (isalpha(Car_Cour)) {
         lire_mot();
     } else if (isdigit(Car_Cour)) {
         lire_nombre();
     } else {
+        char s[2];
+        s[0] = Car_Cour;
         switch (Car_Cour) {
             case ';':
+                s[1] = '\0';
                 SYM_COUR.CODE = PV_TOKEN;
                 Lire_Car();
                 break;
 
             case '.':
-                SYM_COUR.CODE = PT_TOKEN;
+                s[1] = '\0';
                 Lire_Car();
+                if (Car_Cour == '.') {
+                    SYM_COUR.CODE = RANGE_OPERATER_TOKEN;
+                    Lire_Car();
+                } else {
+                    SYM_COUR.CODE = PT_TOKEN;
+                }
                 break;
 
             case '+':
+                s[1] = '\0';
                 SYM_COUR.CODE = PLUS_TOKEN;
                 Lire_Car();
                 break;
 
             case '-':
+                s[1] = '\0';
                 SYM_COUR.CODE = MOINS_TOKEN;
                 Lire_Car();
                 break;
 
             case '*':
+                s[1] = '\0';
                 SYM_COUR.CODE = MULT_TOKEN;
                 Lire_Car();
                 break;
 
             case '/':
+                s[1] = '\0';
                 SYM_COUR.CODE = DIV_TOKEN;
                 Lire_Car();
                 break;
 
             case ',':
+                s[1] = '\0';
                 SYM_COUR.CODE = VIR_TOKEN;
                 Lire_Car();
                 break;
 
             case ':':
                 Lire_Car();
-                if (Car_Cour == '=') {
+                if (Car_Cour == '='){
+                    s[1] = '=';
+                    s[2] = '\0';
                     SYM_COUR.CODE = AFF_TOKEN;
                     Lire_Car();
-                } else {
+                }
+                else{
+                    s[1] = '\0';
                     SYM_COUR.CODE = DDOT_TOKEN;
                 }
                 break;
 
             case '<':
                 Lire_Car();
-                if (Car_Cour == '=') {
+                if (Car_Cour == '='){
+                    s[1] = '=';
+                    s[2] = '\0';
                     SYM_COUR.CODE = INFEG_TOKEN;
                     Lire_Car();
-                } else if (Car_Cour == '>') {
+                }
+                else if (Car_Cour == '>'){
+                    s[1] = '=';
+                    s[2] = '\0';
                     SYM_COUR.CODE = DIFF_TOKEN;
                     Lire_Car();
-                } else {
+                }
+                else{
+                    s[1] = '\0';
                     SYM_COUR.CODE = INF_TOKEN;
                 }
                 break;
 
             case '>':
                 Lire_Car();
-                if (Car_Cour == '=') {
+                if (Car_Cour == '='){
+                    s[1] = '=';
+                    s[2] = '\0';
                     SYM_COUR.CODE = SUPEG_TOKEN;
                     Lire_Car();
-                } else {
+                }
+                else{
+                    s[1] = '\0';
                     SYM_COUR.CODE = SUP_TOKEN;
                 }
                 break;
 
             case '(':
+                s[1] = '\0';
                 SYM_COUR.CODE = PO_TOKEN;
                 Lire_Car();
                 break;
             case '=':
+                s[1] = '\0';
                 SYM_COUR.CODE = EG_TOKEN;
                 Lire_Car();
                 break;
 
             case ')':
+                s[1] = '\0';
                 SYM_COUR.CODE = PF_TOKEN;
                 Lire_Car();
                 break;
 
+            case '[':
+                s[1] = '\0';
+                SYM_COUR.CODE = OPEN_BRACKET_TOKEN;
+                Lire_Car();
+                break;
+
+            case ']':
+                s[1] = '\0';
+                SYM_COUR.CODE = CLOSE_BRACKET_TOKEN;
+                Lire_Car();
+                break;
+
             case EOF:
+                s[1] = '\0';
                 SYM_COUR.CODE = EOF_TOKEN;
                 break;
 
             default:
+                s[1] = '\0';
                 SYM_COUR.CODE = ERREUR_TOKEN;
                 Lire_Car(); 
         }
@@ -242,12 +326,20 @@ const char * stringFormat(CODES_LEX code) {
         case NUM_TOKEN: return "NUM_TOKEN";
         case ERREUR_TOKEN: return "ERREUR_TOKEN";
         case EOF_TOKEN: return "EOF_TOKEN";
+        case DDOT_TOKEN: return "DDOT_TOKEN";
         //type tokens
         case INT_TOKEN: return "INT_TOKEN"; 
         case BOOL_TOKEN: return "BOOL_TOKEN";
         case REAL_TOKEN: return "REAL_TOKEN";
         case CHAR_TOKEN: return "CHAR_TOKEN";
         case STRING_TOKEN: return "STRING_TOKEN";
+        //Tableau tokens
+        case OPEN_BRACKET_TOKEN: return "OPEN_BRACKET_TOKEN"; 
+        case CLOSE_BRACKET_TOKEN: return "CLOSE_BRACKET_TOKEN"; 
+        case ARRAY_TOKEN: return "ARRAY_TOKEN"; 
+        case TYPE_TOKEN: return "TYPE_TOKEN"; 
+        case OF_TOKEN: return "OF_TOKEN";
+        case RANGE_OPERATER_TOKEN: return "RANGE_OPERATER_TOKEN"; 
         //
         default: return "UNKNOWN_TOKEN";
     }
@@ -255,7 +347,7 @@ const char * stringFormat(CODES_LEX code) {
 
 
 int main() {
-    fichier = fopen("program_type.txt", "r");
+    fichier = fopen("tableau.txt", "r");
     if (fichier == NULL) {
         perror("Erreur lors de l'ouverture du fichier");
         return 1;

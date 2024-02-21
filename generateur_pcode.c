@@ -190,12 +190,6 @@ void lire_mot(){
     else if (STRCASECMP(mot, "for") == 0){
         SYM_COUR.CODE = FOR_TOKEN;
     }
-    else if (STRCASECMP(mot, "downto") == 0) {
-        SYM_COUR.CODE = DOWNTO_TOKEN;
-    }
-    else if (STRCASECMP(mot, "to") == 0) {
-        SYM_COUR.CODE = INTO_TOKEN;
-    }
     else if (STRCASECMP(mot, "case") == 0){
         SYM_COUR.CODE = CASE_TOKEN;
     }
@@ -207,9 +201,37 @@ void lire_mot(){
     }
     strcpy(SYM_COUR.NOM, mot);
 }
+
+void Skip_Comments() {
+    if (Car_Cour == '/') {
+        Lire_Car(); 
+        if (Car_Cour == '/') { 
+            while (Car_Cour != '\n' && Car_Cour != EOF) {
+                Lire_Car();
+            }
+        } else if (Car_Cour == '*') { 
+            Lire_Car(); 
+            while (!(Car_Cour == '*' && fgetc(fichier) == '/') && Car_Cour != EOF) {
+                Lire_Car();
+            }
+            Lire_Car(); 
+        } else {
+            Car_Cour = '/';
+        }
+    }
+}
+
+
 void Sym_Suiv(){
-    while (Car_Cour == ' ' || Car_Cour == '\n' || Car_Cour == '\t'){
-        Lire_Car();
+    while (Car_Cour == ' ' || Car_Cour == '\n' || Car_Cour == '\t' || Car_Cour == '/' || Car_Cour == '{') {
+        if (Car_Cour == '{') { 
+            while (Car_Cour != '}' && Car_Cour != EOF) {
+                Lire_Car(); 
+            }
+            Lire_Car(); 
+        }
+        Skip_Comments(); 
+        Lire_Car(); 
     }
     if (isalpha(Car_Cour)){
         lire_mot();
@@ -677,8 +699,6 @@ void VARS(){
         break;
     }
 }
-
-
 
 
 
