@@ -255,7 +255,7 @@ const char * stringFormat(CODES_LEX code) {
 
 
 int main() {
-    fichier = fopen("program_type.txt", "r");
+    fichier = fopen("program.txt", "r");
     if (fichier == NULL) {
         perror("Erreur lors de l'ouverture du fichier");
         return 1;
