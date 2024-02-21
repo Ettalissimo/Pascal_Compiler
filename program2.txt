@@ -1,7 +1,8 @@
 program test11;
-var a,b:integer;
+const x=10;
+var a,b;
 Begin
-    read(b);
+    read(x);
     for a := b  to 20 do
     Begin
         write(a)
