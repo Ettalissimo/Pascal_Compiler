@@ -5,7 +5,7 @@
 
 
 #ifdef _WIN32
-#define STRCASECMP strcmp
+#define STRCASECMP stricmp
 #else
 #define STRCASECMP strcasecmp
 #endif
@@ -137,6 +137,12 @@ void lire_mot(){
     }
     else if (STRCASECMP(mot, "until") == 0){
         SYM_COUR.CODE = UNTIL_TOKEN;
+    }
+    else if (stricmp(mot, "downto") == 0) {
+        SYM_COUR.CODE = DOWNTO_TOKEN;
+    }
+    else if (stricmp(mot, "to") == 0) {
+        SYM_COUR.CODE = INTO_TOKEN;
     }
     else if (STRCASECMP(mot, "for") == 0){
         SYM_COUR.CODE = FOR_TOKEN;
@@ -734,9 +740,7 @@ void MULOP(){
 
 void POUR(){
     Test_Symbole(FOR_TOKEN, FOR_ERR);
-    Test_Symbole(ID_TOKEN, ID_ERR);
-    Test_Symbole(AFF_TOKEN, AFF_ERR);
-    Test_Symbole(NUM_TOKEN, NUM_ERR);
+    AFFEC();
 
     switch (SYM_COUR.CODE){
     case DOWNTO_TOKEN:
@@ -750,7 +754,7 @@ void POUR(){
         break;
     }
 
-    Test_Symbole(NUM_TOKEN, NUM_ERR);
+    Test_Symbole(INT_TOKEN, INT_ERR);
     Test_Symbole(DO_TOKEN, DO_ERR);
     INST();
 
@@ -787,7 +791,7 @@ void CAS(){
 
 
 int main(){
-    fichier = fopen("program_type.txt", "r");
+    fichier = fopen("program2.txt", "r");
     if (fichier == NULL){
         perror("Erreur lors de l'ouverture du fichier");
         return 1;
