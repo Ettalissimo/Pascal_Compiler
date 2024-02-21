@@ -22,7 +22,9 @@ typedef enum {
     NUM_TOKEN, ERREUR_TOKEN, FIN_TOKEN, EG_TOKEN,
     REPEAT_TOKEN, UNTIL_TOKEN, FOR_TOKEN, ELSE_TOKEN,
     CASE_TOKEN, OF_TOKEN, INTO_TOKEN, DOWNTO_TOKEN,
-    DDOT_TOKEN
+    DDOT_TOKEN,
+     //types tokens
+    INT_TOKEN, BOOL_TOKEN, REAL_TOKEN, CHAR_TOKEN, STRING_TOKEN
 } CODES_LEX;
 
 
@@ -37,7 +39,7 @@ typedef enum {
     NUM_ERR, ERREUR_ERR, FIN_ERR, EG_ERR,
     CONST_VAR_BEGIN_ERR, VAR_BEGIN_ERR, REPEAT_ERR, UNTIL_ERR,
     FOR_ERR, ELSE_ERR, CASE_ERR, OF_ERR,
-    INTO_ERR, DOWNTO_ERR, DDOT_ERR
+    INTO_ERR, DOWNTO_ERR, DDOT_ERR, INT_ERR,
 } CODES_ERR;
 
 typedef enum{
@@ -86,7 +88,6 @@ void TERM();
 void MULOP();
 void FACT();
 void CAS();
-
 void Lire_Car();
 void Erreur(CODES_ERR code);
 void Test_Symbole(CODES_LEX cl, CODES_ERR COD_ERR);
@@ -96,6 +97,7 @@ void lire_nombre();
 TSYM Rechercher(char *nom);
 
 int result = UKN;
+
 
 void lire_mot(){
     char mot[20];
@@ -140,7 +142,20 @@ void lire_mot(){
     else if (STRCASECMP(mot, "write") == 0){
         SYM_COUR.CODE = WRITE_TOKEN;
     }
-    else if (STRCASECMP(mot, "else") == 0){
+    //les types
+    //
+    else if (STRCASECMP(mot, "int") == 0) {   
+        SYM_COUR.CODE = INT_TOKEN;
+    } else if (STRCASECMP(mot, "bool") == 0) { 
+        SYM_COUR.CODE = BOOL_TOKEN;
+    } else if (STRCASECMP(mot, "float") == 0) { 
+        SYM_COUR.CODE = REAL_TOKEN;
+    } else if (STRCASECMP(mot, "char") == 0) { 
+        SYM_COUR.CODE = CHAR_TOKEN;
+    } else if (STRCASECMP(mot, "string") == 0) {
+        SYM_COUR.CODE = STRING_TOKEN;
+    //
+    }else if (STRCASECMP(mot, "else") == 0){
         SYM_COUR.CODE = ELSE_TOKEN;
     }
     else if (STRCASECMP(mot, "repeat") == 0){
@@ -192,7 +207,13 @@ void lire_nombre(){
         Lire_Car();
     }
     nombre[indice] = '\0';
-    SYM_COUR.CODE = NUM_TOKEN;
+    // SYM_COUR.CODE = NUM_TOKEN;
+    if (strchr(nombre, '.') != NULL) {
+        SYM_COUR.CODE = REAL_TOKEN;
+    } else {
+        SYM_COUR.CODE = INT_TOKEN;
+    }
+
     strcpy(SYM_COUR.NOM, nombre);
 }
 
@@ -331,6 +352,7 @@ void Sym_Suiv(){
     }
     printf("Symbol: %s\n", SYM_COUR.NOM);
 }
+
 void Lire_Car(){
     Car_Cour = fgetc(fichier);
 }
@@ -369,35 +391,89 @@ void BLOCK(){
     INSTS();
 }
 
-void CONSTS(){
-    switch (SYM_COUR.CODE){
+// void CONSTS(){
+//     switch (SYM_COUR.CODE){
+//     case CONST_TOKEN:
+//         Sym_Suiv();
+//         sym = SYM_COUR;
+//         Test_Symbole(ID_TOKEN, ID_ERR);
+//         if(Rechercher(sym.NOM)!=UKN){
+//             printf("double déclaration\n");
+//             exit(EXIT_FAILURE);
+//         }
+//         strcpy(TAB_IDFS[index_idfs].NOM,sym.NOM);
+//         TAB_IDFS[index_idfs].TIDF = TCONST;
+//         index_idfs++;
+//         Test_Symbole(EG_TOKEN, EG_ERR);
+//         Test_Symbole(NUM_TOKEN, NUM_ERR);
+//         Test_Symbole(PV_TOKEN, PV_ERR);
+//         while (SYM_COUR.CODE == ID_TOKEN){
+//             if(Rechercher(SYM_COUR.NOM)!=UKN){
+//                 printf("double déclaration\n");
+//                 exit(EXIT_FAILURE);
+//             }
+//             strcpy(TAB_IDFS[index_idfs].NOM,SYM_COUR.NOM);
+//             TAB_IDFS[index_idfs].TIDF = TCONST;
+//             index_idfs++;
+//             Sym_Suiv();
+//             Test_Symbole(EG_TOKEN, EG_ERR);
+//             Test_Symbole(NUM_TOKEN, NUM_ERR);
+//             Test_Symbole(PV_TOKEN, PV_ERR);
+//         };
+//         break;
+//     case VAR_TOKEN:
+//         break;
+//     case BEGIN_TOKEN:
+//         break;
+//     default:
+//         Erreur(CONST_VAR_BEGIN_ERR);
+//         break;
+//     }
+// }
+
+void CONSTS() {
+    switch (SYM_COUR.CODE) {
     case CONST_TOKEN:
         Sym_Suiv();
-        sym = SYM_COUR;
         Test_Symbole(ID_TOKEN, ID_ERR);
-        if(Rechercher(sym.NOM)!=UKN){
-            printf("double déclaration\n");
-            exit(EXIT_FAILURE);
-        }
-        strcpy(TAB_IDFS[index_idfs].NOM,sym.NOM);
-        TAB_IDFS[index_idfs].TIDF = TCONST;
-        index_idfs++;
         Test_Symbole(EG_TOKEN, EG_ERR);
-        Test_Symbole(NUM_TOKEN, NUM_ERR);
+
+        // Vérifie le type de la constante
+        switch (SYM_COUR.CODE) {
+        case INT_TOKEN:
+        case REAL_TOKEN:
+        case CHAR_TOKEN:
+        case STRING_TOKEN:
+        case BOOL_TOKEN:
+            Sym_Suiv();
+            break;
+        default:
+            Erreur(NUM_ERR); // Erreur si le type n'est pas reconnu
+            break;
+        }
+
         Test_Symbole(PV_TOKEN, PV_ERR);
-        while (SYM_COUR.CODE == ID_TOKEN){
-            if(Rechercher(SYM_COUR.NOM)!=UKN){
-                printf("double déclaration\n");
-                exit(EXIT_FAILURE);
-            }
-            strcpy(TAB_IDFS[index_idfs].NOM,SYM_COUR.NOM);
-            TAB_IDFS[index_idfs].TIDF = TCONST;
-            index_idfs++;
+
+        while (SYM_COUR.CODE == ID_TOKEN) {
             Sym_Suiv();
             Test_Symbole(EG_TOKEN, EG_ERR);
-            Test_Symbole(NUM_TOKEN, NUM_ERR);
+
+            // Vérifie le type de chaque identifiant
+            switch (SYM_COUR.CODE) {
+            case INT_TOKEN:
+            case REAL_TOKEN:
+            case CHAR_TOKEN:
+            case STRING_TOKEN:
+            case BOOL_TOKEN:
+                Sym_Suiv();
+                break;
+            default:
+                Erreur(NUM_ERR); // Erreur si le type n'est pas reconnu
+                break;
+            }
+
             Test_Symbole(PV_TOKEN, PV_ERR);
-        };
+        }
         break;
     case VAR_TOKEN:
         break;
@@ -409,33 +485,78 @@ void CONSTS(){
     }
 }
 
-void VARS(){
-    switch (SYM_COUR.CODE){
+// void VARS(){
+//     switch (SYM_COUR.CODE){
+//     case VAR_TOKEN:
+//         Sym_Suiv();
+//         sym = SYM_COUR;
+//         Test_Symbole(ID_TOKEN, ID_ERR);
+//         result = Rechercher(sym.NOM);
+//         if(result!=UKN){
+//             printf("double déclaration\n");
+//             exit(EXIT_FAILURE);
+//         }
+//         strcpy(TAB_IDFS[index_idfs].NOM,sym.NOM);
+//         TAB_IDFS[index_idfs].TIDF = TVAR;
+//         index_idfs++;
+//         while (SYM_COUR.CODE == VIR_TOKEN){
+//             Sym_Suiv();
+//             sym = SYM_COUR;
+//             Test_Symbole(ID_TOKEN, ID_ERR);
+//             if(Rechercher(sym.NOM)!=UKN){
+//                 printf("double déclaration\n");
+//                 exit(EXIT_FAILURE);
+//             }
+//             strcpy(TAB_IDFS[index_idfs].NOM,sym.NOM);
+//             TAB_IDFS[index_idfs].TIDF = TVAR;
+//             index_idfs++;
+//         }
+//         Test_Symbole(PV_TOKEN, PV_ERR);
+//         break;
+//     case BEGIN_TOKEN:
+//         break;
+//     default:
+//         Erreur(VAR_BEGIN_ERR);
+//         break;
+//     }
+// }
+
+void VARS() {
+    switch (SYM_COUR.CODE) {
     case VAR_TOKEN:
         Sym_Suiv();
-        sym = SYM_COUR;
-        Test_Symbole(ID_TOKEN, ID_ERR);
-        result = Rechercher(sym.NOM);
-        if(result!=UKN){
-            printf("double déclaration\n");
-            exit(EXIT_FAILURE);
-        }
-        strcpy(TAB_IDFS[index_idfs].NOM,sym.NOM);
-        TAB_IDFS[index_idfs].TIDF = TVAR;
-        index_idfs++;
-        while (SYM_COUR.CODE == VIR_TOKEN){
-            Sym_Suiv();
-            sym = SYM_COUR;
+        do {
+            // Attend un identifiant pour chaque variable
             Test_Symbole(ID_TOKEN, ID_ERR);
-            if(Rechercher(sym.NOM)!=UKN){
-                printf("double déclaration\n");
-                exit(EXIT_FAILURE);
+
+            // Vérifie s'il y a une virgule pour déclarer une autre variable du même type
+            while (SYM_COUR.CODE == VIR_TOKEN) {
+                Sym_Suiv();
+                Test_Symbole(ID_TOKEN, ID_ERR);
             }
-            strcpy(TAB_IDFS[index_idfs].NOM,sym.NOM);
-            TAB_IDFS[index_idfs].TIDF = TVAR;
-            index_idfs++;
-        }
-        Test_Symbole(PV_TOKEN, PV_ERR);
+
+            // Attend un deux-points pour la déclaration de type
+            Test_Symbole(DDOT_TOKEN, DDOT_ERR);
+
+            // Gère le type de chaque variable
+            switch (SYM_COUR.CODE) {
+            case INT_TOKEN:
+            case BOOL_TOKEN:
+            case REAL_TOKEN:
+            case CHAR_TOKEN:                
+            case STRING_TOKEN:
+                    Sym_Suiv();
+                    break;
+                default:
+                    Erreur(ERREUR_ERR);  // Erreur si le type n'est pas valide
+                    break;
+            }
+
+            // Attend un point-virgule pour terminer la déclaration de variable
+            Test_Symbole(PV_TOKEN, PV_ERR);
+
+        } while (SYM_COUR.CODE == ID_TOKEN);
+
         break;
     case BEGIN_TOKEN:
         break;
@@ -691,28 +812,46 @@ void MULOP(){
     }
 }
 
+// void POUR(){
+//     Test_Symbole(FOR_TOKEN, FOR_ERR);
+//     AFFEC();
+//     switch (SYM_COUR.CODE){
+//         case DOWNTO_TOKEN:
+//             Test_Symbole(DOWNTO_TOKEN, DOWNTO_ERR);
+//             break;
+//         case INTO_TOKEN:
+//             Test_Symbole(INTO_TOKEN, INTO_ERR);
+//             break;
+//         default:
+//             Erreur(ERREUR_ERR);
+//             break;
+//     }
+//     Test_Symbole(NUM_TOKEN, NUM_ERR);
+//     Test_Symbole(DO_TOKEN, DO_ERR);
+//     INST();
+// }
+
 void POUR(){
     Test_Symbole(FOR_TOKEN, FOR_ERR);
     AFFEC();
 
     switch (SYM_COUR.CODE){
-        case DOWNTO_TOKEN:
-            Test_Symbole(DOWNTO_TOKEN, DOWNTO_ERR);
-            break;
-        case INTO_TOKEN:
-            Test_Symbole(INTO_TOKEN, INTO_ERR);
-            break;
-        default:
-            Erreur(ERREUR_ERR);
-            break;
+    case DOWNTO_TOKEN:
+        Test_Symbole(DOWNTO_TOKEN, DOWNTO_ERR);
+        break;
+    case INTO_TOKEN:
+        Test_Symbole(INTO_TOKEN, INTO_ERR);
+        break;
+    default:
+        Erreur(ERREUR_ERR);
+        break;
     }
 
-    Test_Symbole(NUM_TOKEN, NUM_ERR);
+    Test_Symbole(INT_TOKEN, INT_ERR);
     Test_Symbole(DO_TOKEN, DO_ERR);
     INST();
 
 }
-
 
 void REPETER(){
     Test_Symbole(REPEAT_TOKEN, REPEAT_ERR);
@@ -750,6 +889,8 @@ void CAS(){
     
     Test_Symbole(END_TOKEN, END_ERR);
 }
+
+
 
 
 int main() {

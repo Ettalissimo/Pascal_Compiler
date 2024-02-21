@@ -1,9 +1,7 @@
 program test11;
-const x=10;
 var a,b;
 Begin
-    read(x);
-    for a := b  to 20 do
+    for a := b  to test11 do
     Begin
         write(a)
     end;
